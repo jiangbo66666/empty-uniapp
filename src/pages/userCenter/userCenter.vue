@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
     <view class="map_container">
-      <map class="map" id="map" :longitude="longitude" :latitude="latitude" scale="14" show-location="true" :markers="markers" bindmarkertap="makertap"></map>
+      <map class="map" id="map" :longitude="longitude" :polyline="polyline" :latitude="latitude" scale="14" show-location="true"></map>
     </view>
     <view class="map_text">
       <text class="h1">{{textData.name}}</text>
@@ -18,56 +18,44 @@
 			return {
 				title: 'Hello',
         markers: [],
-        latitude: '',
-        longitude: '',
-        textData: {}
+        latitude: '39.989643',
+        longitude: '116.481028',
+        textData: {},
+        polyline: []
 			}
 		},
 		onLoad() {
       var that = this;
-      var myAmapFun = new amapFile.AMapWX({key:'2b2b0e3571315e34a789036606cabb19'});
-      myAmapFun.getPoiAround({
-        iconPathSelected: '选中 marker 图标的相对路径', //如：..­/..­/img/marker_checked.png
-        iconPath: '未选中 marker 图标的相对路径', //如：..­/..­/img/marker.png
+      var myAmapFun = new amapFile.AMapWX({key:'2b2b0e3571315e34a789036606cabb19'})
+      myAmapFun.getDrivingRoute({
+        origin: '116.481028,39.989643',
+        destination: '116.434446,39.90816',
         success: function(data){
-          markersData = data.markers;
-          that.markers = markersData
-          that.latitude = markersData[0].latitude
-          that.longitude = markersData[0].longitude
-          that.showMarkerInfo(markersData,0);
+          var points = [];
+          if(data.paths && data.paths[0] && data.paths[0].steps){
+            var steps = data.paths[0].steps;
+            for(var i = 0; i < steps.length; i++){
+              var poLen = steps[i].polyline.split(';');
+              for(var j = 0;j < poLen.length; j++){
+                points.push({
+                  longitude: parseFloat(poLen[j].split(',')[0]),
+                  latitude: parseFloat(poLen[j].split(',')[1])
+                })
+              } 
+            }
+          }
+          that.polyline = [{
+            points: points,
+            color: "#0091ff",
+            width: 6
+          }]
         },
         fail: function(info){
-          wx.showModal({title:info.errMsg})
+
         }
       })
 		},
 		methods: {
-      makertap: function(e) {
-        var id = e.markerId;
-        var that = this;
-        that.showMarkerInfo(markersData,id);
-        that.changeMarkerColor(markersData,id);
-      },
-      showMarkerInfo: function(data,i){
-        var that = this;
-        that.textData = {
-          name: data[i].name,
-          desc: data[i].address
-        }
-      },
-      changeMarkerColor: function(data,i){
-        var that = this;
-        var markers = [];
-        for(var j = 0; j < data.length; j++){
-          if(j==i){
-            data[j].iconPath = "选中 marker 图标的相对路径"; //如：..­/..­/img/marker_checked.png
-          }else{
-            data[j].iconPath = "未选中 marker 图标的相对路径"; //如：..­/..­/img/marker.png
-          }
-          markers.push(data[j]);
-        }
-        that.markers = markers
-      }
 		}
 	}
 </script>
