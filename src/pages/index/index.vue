@@ -64,7 +64,7 @@
 		methods: {
 			pay() {
 				uni.requestPayment({
-					
+
 				})
 			},
 			getLocal() {
@@ -104,7 +104,7 @@
 								pl.push({ latitude: coors[i], longitude: coors[i + 1] })
 							}
 
-							console.log(pl,"plplpl")
+							console.log(pl,"plplpl11")
 							_this.latitude = pl[0].latitude
 							_this.longitude = pl[0].longitude
 							_this.polyline = [{
